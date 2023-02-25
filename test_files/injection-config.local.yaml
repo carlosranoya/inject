@@ -1,0 +1,20 @@
+factories:
+  - injectable: MessagePrinterA
+    is-singleton: true
+  - injectable: PermissionService
+    is-singleton: false
+
+injectables:
+  - name: PermissionService
+    package: domain
+  - name: ProfileEntity
+    package: domain
+  - name: UserEntity
+    package: domain
+  - name: MessagePrinterA
+    package: inject
+
+interfaces:
+  - name: IMessagePrinter
+    injectable: MessagePrinterA
+    package: inject
