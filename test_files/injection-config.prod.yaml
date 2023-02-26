@@ -1,9 +1,9 @@
 injectables:
-  - name: MessagePrinterB
+  - name: messagePrinterB
     package: main
     params: "This message is from configuration file - prod"
 
 interfaces:
-  - name: IMessagePrinter
-    injectable: MessagePrinterB
+  - name: iMessagePrinter
+    injectable: messagePrinterB
     package: main

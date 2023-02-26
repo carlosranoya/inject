@@ -25,12 +25,13 @@ func TestAddInterface(t *testing.T) {
 	}
 
 	var I *TestInterface
+	l1 := len(interfaces)
 	AddInterface(I)
 
-	l := len(interfaces)
-
-	if l != 1 {
-		t.Fatalf("number of items: %v, want 1", l)
+	l2 := len(interfaces)
+	delta := l2 - l1
+	if delta != 1 {
+		t.Fatalf("number of new items: %v, want 1", delta)
 	}
 
 	for a, b := range interfaces {
@@ -44,13 +45,14 @@ func TestAddWrappedInterface(t *testing.T) {
 	type TestInterface interface {
 		Test()
 	}
-
+	l1 := len(interfaces)
 	AddWrappedInterface(InterfaceWrapper[TestInterface]{})
 
-	l := len(interfaces)
+	l2 := len(interfaces)
 
-	if l != 1 {
-		t.Fatalf("number of items: %v, want 1", l)
+	delta := l2 - l1
+	if delta != 1 {
+		t.Fatalf("number of new items: %v, want 1", delta)
 	}
 
 	for a, b := range interfaces {
@@ -67,12 +69,13 @@ func TestAddAndGetInjectables(t *testing.T) {
 	}
 
 	var I Injectable
+	l1 := len(injectables)
 	AddInjectable(I)
 
-	l := len(injectables)
-
-	if l != 1 {
-		t.Fatalf("number of items: %v, want 1", l)
+	l2 := len(injectables)
+	delta := l2 - l1
+	if delta != 1 {
+		t.Fatalf("number of new items: %v, want 1", delta)
 	}
 
 	for a, b := range injectables {
@@ -82,7 +85,7 @@ func TestAddAndGetInjectables(t *testing.T) {
 	T := getInjectableType("inject.Injectable")
 
 	if T != reflect.TypeOf(I) {
-		t.Fatalf("wrong type of struct %v, got %v", l, T)
+		t.Fatalf("wrong type of struct %v, got %v", delta, T)
 	}
 
 }
@@ -95,6 +98,7 @@ func TestAddAndGetFactories(t *testing.T) {
 	}
 
 	F := Factory{1, "test F"}
+	l1 := len(factories)
 	AddFactory(&F, true)
 
 	type Factory2 struct {
@@ -103,12 +107,13 @@ func TestAddAndGetFactories(t *testing.T) {
 	}
 
 	G := Factory2{2, "test G"}
+
 	AddFactory(&G, false)
 
-	l := len(factories)
-
-	if l != 2 {
-		t.Fatalf("number of items: %v, want 1", l)
+	l2 := len(factories)
+	delta := l2 - l1
+	if delta != 2 {
+		t.Fatalf("number of new items: %v, want 2", delta)
 	}
 
 }
@@ -160,5 +165,3 @@ func TestAddAndGetInstance(t *testing.T) {
 	}
 
 }
-
-

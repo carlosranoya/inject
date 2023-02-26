@@ -10,7 +10,6 @@ type InterfaceWrapper[T any] struct {
 }
 
 type injectedFactory[T any] struct {
-	Type        reflect.Type
 	IsSingleton bool
 	instance    *T
 }
@@ -25,14 +24,14 @@ func (factory *injectedFactory[T]) GetInstance() *T {
 func (factory *injectedFactory[T]) getInstanceWithArgs(args Args) *T {
 	if factory.IsSingleton {
 		if factory.instance == nil {
-			instance, err := InstanciateWithArgs[T](factory.Type, args)
+			instance, err := InstanciateWithArgs[T](args, false)
 			if err == nil {
 				factory.instance = instance
 			}
 		}
 		return factory.instance
 	}
-	instance, err := InstanciateWithArgs[T](factory.Type, args)
+	instance, err := InstanciateWithArgs[T](args, false)
 	if err == nil {
 		return instance
 	}
@@ -57,7 +56,7 @@ func resetFactories() {
 func AddFactory[T any](obj *T, IsSingleton bool) error {
 	v := reflect.ValueOf(obj).Elem()
 	t := v.Type()
-	factory := injectedFactory[T]{IsSingleton: IsSingleton, Type: t}
+	factory := injectedFactory[T]{IsSingleton: IsSingleton}
 	factories[t] = &factory
 	return nil
 }

@@ -1,15 +1,15 @@
 injectables:
-  - name: MessagePrinterE
+  - name: messagePrinterE
     package: main 
-  - name: MessagePrinterD
+  - name: messagePrinterD
     package: main
     params: ["Message and data from config dev file", "boolean:", true, "number:", 12.34] 
-  - name: MessagePrinterB
+  - name: messagePrinterB
     package: main
     mode: auto
-    params: "This message is from configuration file - dev - from MessagePrinterB instance"
+    params: "This message is from configuration file - dev - from messagePrinterB instance"
 
 interfaces:
-  - name: IMessagePrinter
-    injectable: MessagePrinterE
+  - name: iMessagePrinter
+    injectable: messagePrinterE
     package: main

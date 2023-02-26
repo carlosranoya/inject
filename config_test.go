@@ -5,47 +5,47 @@ import (
 	"testing"
 )
 
-type IMessageTester interface {
+type iMessageTester interface {
 	Test()
 }
 
-type IMessagePrinter interface {
+type iMessagePrinter interface {
 	Print()
 	GetMessage() string
 }
 
-const MessagePrinterA_MSG string = "This message is from MessagePrinterA"
+const messagePrinterA_MSG string = "This message is from messagePrinterA"
 
-type MessagePrinterA struct {
+type messagePrinterA struct {
 }
 
-func (mp *MessagePrinterA) Print() {
+func (mp *messagePrinterA) Print() {
 	fmt.Println(mp.GetMessage())
 }
-func (mp *MessagePrinterA) GetMessage() string {
-	return MessagePrinterA_MSG
+func (mp *messagePrinterA) GetMessage() string {
+	return messagePrinterA_MSG
 }
 
-type MessagePrinterB struct {
+type messagePrinterB struct {
 	Message string
 }
 
-func (mp *MessagePrinterB) Print() {
+func (mp *messagePrinterB) Print() {
 	fmt.Println(mp.GetMessage())
 }
-func (mp *MessagePrinterB) GetMessage() string {
+func (mp *messagePrinterB) GetMessage() string {
 	return mp.Message
 }
 
-type MessagePrinterC struct {
+type messagePrinterC struct {
 	Message string
 	Count   int
 }
 
-func (mp *MessagePrinterC) Print() {
+func (mp *messagePrinterC) Print() {
 	fmt.Println(mp.GetMessage())
 }
-func (mp *MessagePrinterC) GetMessage() string {
+func (mp *messagePrinterC) GetMessage() string {
 	var result string
 	for i := 0; i < mp.Count; i++ {
 		result += fmt.Sprintf("%s: %d\n", mp.Message, i)
@@ -53,94 +53,95 @@ func (mp *MessagePrinterC) GetMessage() string {
 	return result
 }
 
-type MessagePrinterD struct {
+type messagePrinterD struct {
 	Message1 string
 	Message2 any
 	Flag     bool
 	Message3 any
 	Value    float64
 
-	SubPrinter MessagePrinterB `inject:"true"`
+	SubPrinter messagePrinterB `inject:"true"`
 }
 
-func (mp *MessagePrinterD) Print() {
+func (mp *messagePrinterD) Print() {
 	fmt.Println(mp.GetMessage())
 }
-func (mp *MessagePrinterD) GetMessage() string {
+func (mp *messagePrinterD) GetMessage() string {
 	var result string
 	result += fmt.Sprintf("%v\n%v\n%v\n%v\n%v\n", mp.Message1, mp.Message2, mp.Flag, mp.Message3, mp.Value)
-	result += fmt.Sprintln("Message from MessagePrinterD.SubPrinter")
+	result += fmt.Sprintln("Message from messagePrinterD.SubPrinter")
 	result += mp.SubPrinter.GetMessage()
 	return result
 }
 
-type MessagePrinterE struct {
+type messagePrinterE struct {
 	Message1 string `inject:"true" value:"\"direct injection on field Message1\""`
 	Message2 any
 	Flag     bool
 	Message3 any
 	Value    float64
 
-	SubPrinter *MessagePrinterB `inject:"true"`
+	SubPrinter *messagePrinterB `inject:"true"`
 }
 
-func (mp *MessagePrinterE) Print() {
+func (mp *messagePrinterE) Print() {
 	fmt.Println(mp.GetMessage())
 }
-func (mp *MessagePrinterE) GetMessage() string {
+func (mp *messagePrinterE) GetMessage() string {
 	result := fmt.Sprintf("%v\n%v\n%v\n%v\n%v\n", mp.Message1, mp.Message2, mp.Flag, mp.Message3, mp.Value)
 	if mp.SubPrinter != nil {
-		result += fmt.Sprintln("Message from MessagePrinterD.SubPrinter")
+		result += fmt.Sprintln("Message from messagePrinterD.SubPrinter")
 		result += mp.SubPrinter.GetMessage()
 	} else {
-		result += fmt.Sprintln("SubPrinter at MessagePrinterE = nil")
+		result += fmt.Sprintln("SubPrinter at messagePrinterE = nil")
 	}
 	return result
 }
 
-type PrinterContainer struct {
-	Printer IMessagePrinter `inject:"struct"`
+type printerContainer struct {
+	Printer iMessagePrinter `inject:"struct"`
 }
 
 func init_instances() {
 
 	// interface registration (mode 2)
-	AddWrappedInterface(InterfaceWrapper[IMessagePrinter]{})
+	AddWrappedInterface(InterfaceWrapper[iMessagePrinter]{})
 
 	// injectable structs registration
-	AddInjectable(MessagePrinterA{})
-	AddInjectable(MessagePrinterB{})
-	AddInjectable(MessagePrinterC{})
-	AddInjectable(MessagePrinterD{})
-	AddInjectable(MessagePrinterE{})
+	AddInjectable(messagePrinterA{})
+	AddInjectable(messagePrinterB{})
+	AddInjectable(messagePrinterC{})
+	AddInjectable(messagePrinterD{})
+	AddInjectable(messagePrinterE{})
 
 	// injected structs registration
-	AddFactory(&PrinterContainer{}, false)
+	AddFactory(&printerContainer{}, false)
 
 }
 
 func TestImportConfig(t *testing.T) {
 
+	t.Log("initializing TestImportConfig")
 	init_instances()
 
 	file := "test_files/injection-config.local.yaml"
 	t.Logf("\n\nimporting config file %s\n", file)
 	ImportConfig(file)
 
-	description := config.GetInterface("inject.IMessagePrinter")
+	description := config.GetInterface("inject.iMessagePrinter")
 	t.Log(description)
 
 	if description == nil {
 		t.Fatalf("Interface name. Expected not nil, got %v", description)
 	}
 
-	const iName = "IMessagePrinter"
+	const iName = "iMessagePrinter"
 
 	if description.Name != iName {
 		t.Fatalf("Interface name. Expected %s, got %s", iName, description.Name)
 	}
 
-	const injName = "MessagePrinterA"
+	const injName = "messagePrinterA"
 
 	if description.Injectable != injName {
 		t.Fatalf("Interface Injectable. Expected %s, got %s", injName, description.Injectable)
@@ -150,6 +151,47 @@ func TestImportConfig(t *testing.T) {
 
 	if description.Package != iPkg {
 		t.Fatalf("Interface Package. Expected %s, got %s", iPkg, description.Package)
+	}
+
+	t.Log("TestImportConfig ok")
+
+}
+
+func TestGetInstanceWithImportedCongif(t *testing.T) {
+
+	init_instances()
+	pc := GetInstance[printerContainer](nil)
+
+	if pc.Printer != nil {
+		t.Fatalf("TestGetInstanceWithImportedCongif(). Expected %v, got %v", nil, pc.Printer)
+	}
+
+	file := "test_files/injection-config.local.yaml"
+	ImportConfig(file)
+
+	printerContainer := printerContainer{}
+	Inject(&printerContainer)
+
+	if printerContainer.Printer == nil {
+		t.Fatalf("TestGetInstanceWithImportedCongif(). Expected %v, got %v", nil, pc.Printer)
+	}
+
+	message := printerContainer.Printer.GetMessage()
+
+	if message != messagePrinterA_MSG {
+		t.Fatalf("TestGetInstanceWithImportedCongif(). Expected %v, got %v", message, messagePrinterA_MSG)
+	}
+
+	Inject(pc)
+
+	if pc.Printer == nil {
+		t.Fatalf("TestGetInstanceWithImportedCongif(). Expected %v, got %v", nil, pc.Printer)
+	}
+
+	message = pc.Printer.GetMessage()
+
+	if message != messagePrinterA_MSG {
+		t.Fatalf("TestGetInstanceWithImportedCongif(). Expected %v, got %v", message, messagePrinterA_MSG)
 	}
 
 }
