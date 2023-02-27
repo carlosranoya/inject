@@ -41,6 +41,14 @@ func (factory *injectedFactory[T]) Reset() {
 	factory.instance = nil
 }
 
+func ResetData() {
+	factories = make(map[reflect.Type]iResetable)
+
+	interfaces = make(map[string]reflect.Type)
+
+	injectables = make(map[string]reflect.Type)
+}
+
 var factories map[reflect.Type]iResetable = make(map[reflect.Type]iResetable)
 
 var interfaces map[string]reflect.Type = make(map[string]reflect.Type)

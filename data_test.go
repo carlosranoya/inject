@@ -20,6 +20,8 @@ func TestCheckType(t *testing.T) {
 
 func TestAddInterface(t *testing.T) {
 
+	ResetData()
+
 	type TestInterface interface {
 		Test()
 	}
@@ -41,6 +43,8 @@ func TestAddInterface(t *testing.T) {
 }
 
 func TestAddWrappedInterface(t *testing.T) {
+
+	ResetData()
 
 	type TestInterface interface {
 		Test()
