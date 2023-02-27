@@ -1,7 +1,6 @@
 package inject
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -97,11 +96,9 @@ func ImportConfig(filename string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	nconfig := config
-	fmt.Println(nconfig)
+
 	err = yaml.Unmarshal(content, &config)
-	nconfig = config
-	fmt.Println(nconfig)
+
 	if err != nil {
 		log.Fatal(err)
 	}

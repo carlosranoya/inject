@@ -1,0 +1,10 @@
+injectables:
+  - name: TestStruct
+    package: inject
+    params: 
+      Message: "This message was defined at config_1.yaml"
+
+interfaces:
+  - name: TestInterface
+    injectable: TestStruct
+    package: inject

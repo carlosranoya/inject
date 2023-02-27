@@ -244,3 +244,33 @@ func TestConfigParams(t *testing.T) {
 	}
 
 }
+
+type TestInterface interface {
+	Test()
+}
+
+type TestStruct struct {
+	Message string
+}
+
+func (t *TestStruct) Test() {
+	fmt.Println(t.Message)
+}
+
+func TestConfigAndInject(t *testing.T) {
+
+	var I *TestInterface
+	AddInterface(I)
+	AddInjectable(TestStruct{})
+
+	ImportConfig("test_files/config_1.yaml")
+
+	type TestContainer struct {
+		Tester TestInterface `inject:"struct"`
+	}
+	container := TestContainer{}
+	Inject(&container)
+
+	container.Tester.Test()
+
+}

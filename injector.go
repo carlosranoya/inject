@@ -225,9 +225,20 @@ func setFieldValue(fieldName string, field reflect.Value, fieldValue reflect.Val
 		if v, ok := args[fieldName]; ok {
 			switch field.Type().Kind() {
 			case reflect.Int:
-				x := v.(float64)
-				n := int64(x)
-				field.SetInt(n)
+
+				i, ok := v.(int)
+				if ok {
+					field.SetInt(int64(i))
+					break
+				}
+				x, ok := v.(float64)
+				if ok {
+					field.SetInt(int64(x))
+					break
+				}
+
+				field.SetInt(v.(int64))
+
 			case reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int8, reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uint8:
 				field.SetInt(v.(int64))
 			case reflect.Float32, reflect.Float64:
