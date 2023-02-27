@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-type iMessageTester interface {
-	Test()
-}
+// type iMessageTester interface {
+// 	Test()
+// }
 
 type iMessagePrinter interface {
 	Print()
@@ -192,6 +192,55 @@ func TestGetInstanceWithImportedCongif(t *testing.T) {
 
 	if message != messagePrinterA_MSG {
 		t.Fatalf("TestGetInstanceWithImportedCongif(). Expected %v, got %v", message, messagePrinterA_MSG)
+	}
+
+}
+
+func TestConfigParams(t *testing.T) {
+
+	init_instances()
+
+	file := "test_files/injection-config.local.yaml"
+	ImportConfig(file)
+
+	printerContainer := printerContainer{}
+	Inject(&printerContainer)
+
+	message := printerContainer.Printer.GetMessage()
+	expectedMessage := "This message is from messagePrinterA"
+
+	if message != expectedMessage {
+		t.Fatalf("TestConfigParams(). Expected %v, got %v", message, messagePrinterA_MSG)
+	}
+
+	file = "test_files/injection-config.dev.yaml"
+	ImportConfig(file)
+
+	Inject(&printerContainer)
+
+	printer := printerContainer.Printer.(*messagePrinterD)
+
+	if printer.Flag != true {
+		t.Fatalf("TestConfigParams(). Expected printer.Flag = %v, got printer.Flag = %v", printer.Flag, true)
+	}
+
+	if printer.Value != 12.34 {
+		t.Fatalf("TestConfigParams(). Expected printer.Value = %v, got printer.Value = %v", printer.Value, 12.34)
+	}
+
+	if printer.Message3 != "number:" {
+		t.Fatalf("TestConfigParams(). Expected printer.Message3 = %v, got printer.Message3 = %v", printer.Message3, "number:")
+	}
+
+	file = "test_files/injection-config.qa.yaml"
+	ImportConfig(file)
+
+	Inject(&printerContainer)
+
+	printer2 := printerContainer.Printer.(*messagePrinterC)
+
+	if printer2.Count != 5 {
+		t.Fatalf("TestConfigParams(). Expected printer2.Count = %v, got printer2.Count = %v", printer2.Count, 5)
 	}
 
 }

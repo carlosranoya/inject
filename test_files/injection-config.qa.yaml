@@ -1,6 +1,6 @@
 injectables:
   - name: messagePrinterC
-    package: main
+    package: inject
     params: 
       Message: "This message is from configuration file - qa"
       Count: 5
@@ -8,4 +8,4 @@ injectables:
 interfaces:
   - name: iMessagePrinter
     injectable: messagePrinterC
-    package: main
+    package: inject
