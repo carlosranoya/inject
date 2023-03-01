@@ -2,171 +2,159 @@
 ## Dependency injection package for Golang
 
 
-Inject is a real-time dependency injection, based on struct tags and implemented with Go reflect package.
+***Inject*** is a real-time dependency injection package for Go, based on struct tags and built on top of Go reflect package.
 
-- Blá blá blá
-- Bli bli bli
-- ✨Magic ✨
+## Some Features
 
-## Features
-
-- Import a HTML file and watch it magically convert to Markdown
-- Drag and drop images (requires your Dropbox account be linked)
-- Import and save files from GitHub, Dropbox, Google Drive and One Drive
-- Drag and drop markdown and HTML files into Dillinger
-- Export documents as Markdown, HTML and PDF
-
-Markdown is a lightweight markup language based on the formatting conventions
-that people naturally use in email.
-As [John Gruber] writes on the [Markdown site][df1]
-
-> The overriding design goal for Markdown's
-> formatting syntax is to make it as readable
-> as possible. The idea is that a
-> Markdown-formatted document should be
-> publishable as-is, as plain text, without
-> looking like it's been marked up with tags
-> or formatting instructions.
-
-This text you see here is *actually- written in Markdown! To get a feel
-for Markdown's syntax, type some text into the left window and
-watch the results in the right.
-
-## Tech
-
-Dillinger uses a number of open source projects to work properly:
-
-- [AngularJS] - HTML enhanced for web apps!
-- [Ace Editor] - awesome web-based text editor
-- [markdown-it] - Markdown parser done right. Fast and easy to extend.
-- [Twitter Bootstrap] - great UI boilerplate for modern web apps
-- [node.js] - evented I/O for the backend
-- [Express] - fast node.js network app framework [@tjholowaychuk]
-- [Gulp] - the streaming build system
-- [Breakdance](https://breakdance.github.io/breakdance/) - HTML
-to Markdown converter
-- [jQuery] - duh
-
-And of course Dillinger itself is open source with a [public repository][dill]
- on GitHub.
+- Dependency injection rules in external yaml files
+- Custom struct factories, with singleton option
+- Default struct values, using struct tags and/or external file
 
 ## Installation
 
-Dillinger requires [Node.js](https://nodejs.org/) v10+ to run.
-
-Install the dependencies and devDependencies and start the server.
-
-```sh
-cd dillinger
-npm i
-node app
-```
-
-For production environments...
+Make sure you have Go installed ([download](https://go.dev/dl/)). Version 1.18 or higher is required.
+Initialize your project by creating a folder and running ``` go mod init github.com/your/repo ``` inside the folder. Then install ***Inject*** with the ``` go get ```  command:
 
 ```sh
-npm install --production
-NODE_ENV=production node app
+go get -u github.com/carlosranoya/inject
 ```
 
-## Plugins
+## Example of Use
 
-Dillinger is currently extended with the following plugins.
-Instructions on how to use them in your own application are linked below.
-
-| Plugin | README |
-| ------ | ------ |
-| Dropbox | [plugins/dropbox/README.md][PlDb] |
-| GitHub | [plugins/github/README.md][PlGh] |
-| Google Drive | [plugins/googledrive/README.md][PlGd] |
-| OneDrive | [plugins/onedrive/README.md][PlOd] |
-| Medium | [plugins/medium/README.md][PlMe] |
-| Google Analytics | [plugins/googleanalytics/README.md][PlGa] |
-
-## Development
-
-Want to contribute? Great!
-
-Dillinger uses Gulp + Webpack for fast developing.
-Make a change in your file and instantaneously see your updates!
-
-Open your favorite Terminal and run these commands.
-
-First Tab:
+Create a main.go file and choose a package name. In this example, I choose package main.
 
 ```sh
-node app
+package main
 ```
 
-Second Tab:
+Import ***Inject*** pakage and other dependencies.
 
 ```sh
-gulp watch
+import (
+    "fmt"
+    "github.com/carlosranoya/inject"
+)
 ```
 
-(optional) Third:
+Create an interface that will be injectaed by some struct instance.
 
 ```sh
-karma test
+type TestInterface interface {
+    Test()
+}
 ```
 
-#### Building for source
-
-For production release:
+Create a struct that implements the interface.
 
 ```sh
-gulp build --prod
+type TestStruct struct {
+    Message string
+}
+func (t *TestStruct) Test() {
+    fmt.Println(t.Message)
+}
 ```
 
-Generating pre-built zip archives for distribution:
+At the *main* or *init* function, use ***Inject*** to register the interface and the injected struct.
 
 ```sh
-gulp build dist --prod
+func main() {
+
+    fmt.Println("testing inject")
+
+    var I *TestInterface
+    inject.AddInterface(I)
+
+    inject.AddInjectable(TestStruct{})
 ```
 
-## Docker
-
-Dillinger is very easy to install and deploy in a Docker container.
-
-By default, the Docker will expose port 8080, so change this within the
-Dockerfile if necessary. When ready, simply use the Dockerfile to
-build the image.
+Use ***Inject*** to register an yaml file that describe the relationship between interfaces and structs (details about this file below).
 
 ```sh
-cd dillinger
-docker build -t <youruser>/dillinger:${package.json.version} .
+    inject.ImportConfig("config_1.yaml")
 ```
 
-This will create the dillinger image and pull in the necessary dependencies.
-Be sure to swap out `${package.json.version}` with the actual
-version of Dillinger.
-
-Once done, run the Docker image and map the port to whatever you wish on
-your host. In this example, we simply map port 8000 of the host to
-port 8080 of the Docker (or whatever port was exposed in the Dockerfile):
+Create a struct that contains the interface and ***Inject*** the interface field with the struct defined at "config_1.yaml" file.
 
 ```sh
-docker run -d -p 8000:8080 --restart=always --cap-add=SYS_ADMIN --name=dillinger <youruser>/dillinger:${package.json.version}
+    type TestContainer struct {
+        Tester TestInterface `inject:"struct"`
+    }
+    container := TestContainer{}
+    inject.Inject(&container)
 ```
+Note that is necessary a tag definition to the struct's field intended to be injected. Make sure you pass a pointer to the *Inject()* function.
 
-> Note: `--capt-add=SYS-ADMIN` is required for PDF rendering.
-
-Verify the deployment by navigating to your server address in
-your preferred browser.
+Finally, call the interface function to test the dependency injection and close the main function.
 
 ```sh
-127.0.0.1:8000
+    container.Tester.Test()
+}
 ```
 
-## License
+Let's see the config_1.yaml file. It contains a section for "structs", identified as "injectables":
 
-MIT
+```sh
+injectables:
+  - name: TestStruct
+    package: main
+    params: 
+      Message: "This message was defined at config_1.yaml"
+```
+This is a list with structs that will be injected at interface fields. Note that optionally there's a params field where we define values that will be set to struct fields. In this example, the struct TestStruct owns a string field named Message.
+Next, the interfaces section:
+```sh
+interfaces:
+  - name: TestInterface
+    injectable: TestStruct
+    package: main
+```
+Here, we define the relationship between interfaces and injectable structs.
+The "package" parameter is fundamental, and it corresponds to the name of the package where interfaces and structs where defined.
+That's it.
 
-**Free Software, Hell Yeah!**
+## Other Uses
+
+Inject comes with another utilities.
+It may be used to define standard values for structs.
+
+For example:
+```sh
+type TestStruct struct {
+	NonParametrizedField string
+	StringField          string `inject:"stringField" value:"teste"`
+	IntField             int    `inject:"intField" value:"12"`
+	BooleanField         bool   `inject:"booleanField" value:"true"`
+}
+```
+At this case, we defined 3 fields that will be initializated with values defined at the struct's tags. The name after "inject:" must be any unique, not empty string, and is not relevant for this example.
+Next, create an instance using this ***Inject*** funcion:
+
+```sh
+testObject, err := inject.Instanciate[TestStruct]()
+```
+The names defined with ***Inject*** tags may be used to instanciate objects with map[string]any arguments.
+```sh
+type Developer struct {
+   NonParametrizedField string
+   StringField          string `inject:"name" value:"teste"`
+   IntField             int    `inject:"age" value:"12"`
+   BooleanField         bool   `inject:"likesGo" value:"false"`
+}
+
+var args map[string]any = map[string]any{
+   "likesGo": true,
+   "age":     27,
+   "name": "Bob",
+}
+
+developer, err := inject.InstanciateWithArgs[Developer](args, false)
+```
+
 
 [//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
 
-   [dill]: <https://github.com/joemccann/dillinger>
+   [go-install]: <https://go.dev/dl/>
    [git-repo-url]: <https://github.com/joemccann/dillinger.git>
    [john gruber]: <http://daringfireball.net>
    [df1]: <http://daringfireball.net/projects/markdown/>
