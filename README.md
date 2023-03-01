@@ -2,7 +2,7 @@
 ## Dependency injection package for Golang
 
 
-***Inject*** is a real-time dependency injection package for Go, based on struct tags and built on top of Go reflect package.
+***Inject*** is a runtime dependency injection package for Go, based on struct tags and built on top of Go reflect package.
 
 ## Some Features
 
