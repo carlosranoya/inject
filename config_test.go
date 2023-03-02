@@ -130,7 +130,7 @@ func TestImportConfig(t *testing.T) {
 	t.Logf("\n\nimporting config file %s\n", file)
 	ImportConfig(file)
 
-	description := config.GetInterface("inject.iMessagePrinter")
+	description := config.getInterface("inject.iMessagePrinter")
 	t.Log(description)
 
 	if description == nil {

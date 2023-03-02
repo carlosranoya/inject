@@ -62,10 +62,9 @@ func main() {
 
     fmt.Println("testing inject")
 
-    var I *TestInterface
-    inject.AddInterfacePointer(I)
+    inject.AddInterface[TestInterface]()
 
-    inject.AddInjectable(TestStruct{})
+    inject.AddInjectable[TestStruct]()
 ```
 
 Use ***Inject*** to register an yaml file that describe the relationship between interfaces and structs (details about this file below).

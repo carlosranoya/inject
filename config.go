@@ -41,10 +41,10 @@ type configData struct {
 	Interfaces  []interfaceDescription  `yaml:"interfaces"`
 }
 
-func GetInjectable(fieldType string) *injectableDescription {
-	inter := config.GetInterface(fieldType)
+func getInjectable(fieldType string) *injectableDescription {
+	inter := config.getInterface(fieldType)
 	if inter == nil {
-		inj := config.GetInjectable(fieldType)
+		inj := config.getInjectable(fieldType)
 		if inj != nil && inj.InjectMode == "auto" {
 			return inj
 		}
@@ -58,14 +58,14 @@ func GetInjectable(fieldType string) *injectableDescription {
 			return &inj
 		}
 	}
-	inj := config.GetInjectable(fieldType)
+	inj := config.getInjectable(fieldType)
 	if inj != nil && inj.InjectMode == "auto" {
 		return inj
 	}
 	return nil
 }
 
-func (data *configData) GetInterface(name string) *interfaceDescription {
+func (data *configData) getInterface(name string) *interfaceDescription {
 	if data.Interfaces == nil {
 		return nil
 	}
@@ -77,7 +77,7 @@ func (data *configData) GetInterface(name string) *interfaceDescription {
 	return nil
 }
 
-func (data *configData) GetInjectable(name string) *injectableDescription {
+func (data *configData) getInjectable(name string) *injectableDescription {
 	if data.Injectables == nil {
 		return nil
 	}

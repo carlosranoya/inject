@@ -192,7 +192,7 @@ func injectWithValueAndArgs(v reflect.Value, args Args, positional []any, doRema
 		}
 
 		if injectFieldName == "struct" {
-			descriptor := GetInjectable(path)
+			descriptor := getInjectable(path)
 			if descriptor != nil {
 
 				it := getInjectableType(descriptor.GetPath())
@@ -236,7 +236,7 @@ func InstaciateInjected[T interface{}]() (T, error) {
 	w := interfaceWrapper[T]{}
 	name := reflect.TypeOf(w.pointer).Elem().String()
 
-	descriptor := GetInjectable(name)
+	descriptor := getInjectable(name)
 	if descriptor != nil {
 
 		it := getInjectableType(descriptor.GetPath())
