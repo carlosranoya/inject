@@ -183,7 +183,6 @@ func injectWithValueAndArgs(v reflect.Value, args Args, positional []any, doRema
 			fieldValue = rf
 		}
 
-		//path := f.Type.PkgPath() + "." + f.Type.Name()
 		path := f.Type.String()
 		if f.Type.PkgPath() == "" || f.Type.Name() == "" {
 			path = fmt.Sprint(f.Type)
@@ -212,7 +211,7 @@ func injectWithValueAndArgs(v reflect.Value, args Args, positional []any, doRema
 
 				if descriptor.Params != nil {
 					argsValue := reflect.ValueOf(descriptor.Params)
-					fillStructField(argsValue, fieldValue, reverse)
+					fillValueWithData(argsValue, fieldValue, reverse)
 				}
 			}
 		}
@@ -230,6 +229,30 @@ func injectWithValueAndArgs(v reflect.Value, args Args, positional []any, doRema
 	}
 
 	return nil
+}
+
+func InstaciateInjected[T interface{}]() (T, error) {
+
+	w := interfaceWrapper[T]{}
+	name := reflect.TypeOf(w.pointer).Elem().String()
+
+	descriptor := GetInjectable(name)
+	if descriptor != nil {
+
+		it := getInjectableType(descriptor.GetPath())
+
+		if it != nil {
+			tt := reflect.New(it)
+			if descriptor.Params != nil {
+				argsValue := reflect.ValueOf(descriptor.Params)
+				fillValueWithData(argsValue, tt, nil)
+			}
+			return tt.Interface().(T), nil
+		}
+	}
+
+	return *w.pointer, errors.New("not registered interface")
+
 }
 
 func setFieldValue(fieldName string, field reflect.Value, fieldValue reflect.Value, args Args, index int, positional []any, remap map[string]string) {
@@ -324,7 +347,7 @@ func InjectWithPositionalArgs(obj any, args []any) error {
 	v := reflect.ValueOf(obj)
 	if v.Kind() != reflect.Pointer {
 		fmt.Printf("--- kind:%v", v.Kind())
-		return errors.New("object must me a pointer to a struct.")
+		return errors.New("object must me a pointer to a struct")
 	}
 
 	return injectWithValueAndArgs(v, nil, args, false)
@@ -334,7 +357,7 @@ func Inject(obj any) error {
 	return InjectWithArgs(obj, nil, false)
 }
 
-func fillStructField(data reflect.Value, fieldValue reflect.Value, remap map[string]string) {
+func fillValueWithData(data reflect.Value, fieldValue reflect.Value, remap map[string]string) {
 
 	kind := data.Kind()
 	elem := fieldValue.Elem()

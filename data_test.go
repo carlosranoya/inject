@@ -28,7 +28,7 @@ func TestAddInterface(t *testing.T) {
 
 	var I *TestInterface
 	l1 := len(interfaces)
-	AddInterface(I)
+	AddInterfacePointer(I)
 
 	l2 := len(interfaces)
 	delta := l2 - l1
@@ -50,7 +50,7 @@ func TestAddWrappedInterface(t *testing.T) {
 		Test()
 	}
 	l1 := len(interfaces)
-	AddWrappedInterface(InterfaceWrapper[TestInterface]{})
+	AddInterface[TestInterface]()
 
 	l2 := len(interfaces)
 
@@ -74,7 +74,7 @@ func TestAddAndGetInjectables(t *testing.T) {
 
 	var I Injectable
 	l1 := len(injectables)
-	AddInjectable(I)
+	AddInjectable[Injectable]()
 
 	l2 := len(injectables)
 	delta := l2 - l1

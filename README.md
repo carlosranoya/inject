@@ -19,7 +19,7 @@ Initialize your project by creating a folder and running ``` go mod init github.
 go get -u github.com/carlosranoya/inject
 ```
 
-## Example of Use
+## Example of Use 1
 
 Create a main.go file and choose a package name. In this example, I choose package main.
 
@@ -63,7 +63,7 @@ func main() {
     fmt.Println("testing inject")
 
     var I *TestInterface
-    inject.AddInterface(I)
+    inject.AddInterfacePointer(I)
 
     inject.AddInjectable(TestStruct{})
 ```
@@ -112,6 +112,18 @@ interfaces:
 Here, we define the relationship between interfaces and injectable structs.
 The "package" parameter is fundamental, and it corresponds to the name of the package where interfaces and structs where defined.
 That's it.
+
+## Example of Use 2
+
+This is very similar of last example, but instead of using a container struct (TestContainer) to be filled with a struct, we will define an inline interface variable, and it'll be instanciated as the struct defined at congif_1.yaml file.
+
+```sh
+    var i TestInterface
+    i, err = InstaciateInjected[TestInterface]()
+    i.Test()
+```
+
+
 
 ## Other Uses
 

@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-type InterfaceWrapper[T any] struct {
+type interfaceWrapper[T any] struct {
 	pointer *T
 }
 
@@ -94,19 +94,28 @@ func GetInstance[T any](args Args) *T {
 	return nil
 }
 
-func AddInterface(pointer any) {
+func AddInterface[T any]() {
+	addWrappedInterface(interfaceWrapper[T]{})
+}
+
+func AddInterfacePointer(pointer any) {
 	t := reflect.TypeOf(pointer).Elem()
 	name := fmt.Sprintf("%v", reflect.TypeOf(pointer).Elem())
 	interfaces[name] = t
 }
 
-func AddWrappedInterface[T any](wrapper InterfaceWrapper[T]) {
+func addWrappedInterface[T any](wrapper interfaceWrapper[T]) {
 	t := reflect.TypeOf(wrapper.pointer).Elem()
 	name := fmt.Sprintf("%v", reflect.TypeOf(wrapper.pointer).Elem())
 	interfaces[name] = t
 }
 
-func AddInjectable(obj any) {
+func AddInjectable[T any]() {
+	var t T
+	addInjectable(t)
+}
+
+func addInjectable(obj any) {
 	t := reflect.TypeOf(obj)
 	name := fmt.Sprintf("%v", t)
 	injectables[name] = t

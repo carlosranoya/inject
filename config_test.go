@@ -106,14 +106,14 @@ func init_instances() {
 
 	ResetData()
 	// interface registration (mode 2)
-	AddWrappedInterface(InterfaceWrapper[iMessagePrinter]{})
+	AddInterface[iMessagePrinter]()
 
 	// injectable structs registration
-	AddInjectable(messagePrinterA{})
-	AddInjectable(messagePrinterB{})
-	AddInjectable(messagePrinterC{})
-	AddInjectable(messagePrinterD{})
-	AddInjectable(messagePrinterE{})
+	AddInjectable[messagePrinterA]()
+	AddInjectable[messagePrinterB]()
+	AddInjectable[messagePrinterC]()
+	AddInjectable[messagePrinterD]()
+	AddInjectable[messagePrinterE]()
 
 	// injected structs registration
 	AddFactory(&printerContainer{}, false)
@@ -249,15 +249,16 @@ func TestConfigParams(t *testing.T) {
 }
 
 type TestInterface interface {
-	Test()
+	Test() string
 }
 
 type TestStruct struct {
 	Message string
 }
 
-func (t *TestStruct) Test() {
+func (t *TestStruct) Test() string {
 	fmt.Println(t.Message)
+	return t.Message
 }
 
 func TestConfigAndInject(t *testing.T) {
@@ -265,8 +266,8 @@ func TestConfigAndInject(t *testing.T) {
 	init_instances()
 
 	var I *TestInterface
-	AddInterface(I)
-	AddInjectable(TestStruct{})
+	AddInterfacePointer(I)
+	AddInjectable[TestStruct]()
 
 	ImportConfig("test_files/config_1.yaml")
 
@@ -277,5 +278,32 @@ func TestConfigAndInject(t *testing.T) {
 	Inject(&container)
 
 	container.Tester.Test()
+
+}
+
+func TestInstanciateInjectable(t *testing.T) {
+
+	init_instances()
+
+	var I *TestInterface
+	AddInterfacePointer(I)
+	AddInjectable[TestStruct]()
+
+	ImportConfig("test_files/config_1.yaml")
+
+	var i TestInterface
+	i, err := InstaciateInjected[TestInterface]()
+
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	m := i.Test()
+	configMessage := "This message was defined at config_1.yaml"
+	if m != configMessage {
+		t.Fatalf("TestInstanciateInjectable(). Expected test message = %v, got test message = %v", m, configMessage)
+	}
+
+	t.Logf(m)
 
 }
