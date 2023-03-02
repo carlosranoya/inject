@@ -1,5 +1,5 @@
 # Inject
-## Dependency injection package for Golang
+## Dependency injection package for Go
 
 
 ***Inject*** is a runtime dependency injection package for Go, based on struct tags and built on top of Go reflect package.
@@ -36,7 +36,7 @@ import (
 )
 ```
 
-Create an interface that will be injectaed by some struct instance.
+Create an interface that will be injected by some struct instance.
 
 ```sh
 type TestInterface interface {
@@ -74,7 +74,7 @@ Use ***Inject*** to register an yaml file that describe the relationship between
     inject.ImportConfig("config_1.yaml")
 ```
 
-Create a struct that contains the interface and ***Inject*** the interface field with the struct defined at "config_1.yaml" file.
+Create a struct that contains the interface and inject the interface field with the struct defined at "config_1.yaml" file.
 
 ```sh
     type TestContainer struct {
