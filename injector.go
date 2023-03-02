@@ -154,16 +154,33 @@ func injectWithValueAndArgs(v reflect.Value, args Args, positional []any, doRema
 					panic(err)
 				}
 				rf := v.Field(i)
-				tt := fmt.Sprintf("%v |  %v", rf.Kind().String(), rf.Type())
-				fmt.Println(tt)
 				rf = reflect.NewAt(rf.Type(), unsafe.Pointer(rf.UnsafeAddr())).Elem()
 				injectWithValueAndArgs(rf, dat, nil, doRemap)
-				//InjectWithArgs(obj.Interface(), dat, true)
+
+			case reflect.Pointer:
+
+				if value == "nil" || value == "null" {
+					break
+				}
+				if err := json.Unmarshal([]byte(value), &dat); err != nil {
+					panic(err)
+				}
+				rf := reflect.New(f.Type.Elem())
+				injectWithValueAndArgs(rf.Elem(), dat, nil, doRemap)
+				fieldValue = rf
 
 			default:
 				// TODO: warning message - not supported types
 			}
 
+		} else if f.Type.Kind() == reflect.Struct {
+			rf := v.Field(i)
+			rf = reflect.NewAt(rf.Type(), unsafe.Pointer(rf.UnsafeAddr())).Elem()
+			injectWithValueAndArgs(rf, nil, nil, doRemap)
+		} else if f.Type.Kind() == reflect.Pointer {
+			rf := reflect.New(f.Type.Elem())
+			injectWithValueAndArgs(rf.Elem(), nil, nil, doRemap)
+			fieldValue = rf
 		}
 
 		//path := f.Type.PkgPath() + "." + f.Type.Name()

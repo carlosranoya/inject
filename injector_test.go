@@ -227,3 +227,78 @@ func TestInstanciateWithInitialValues(t *testing.T) {
 		t.Fatalf("tested object boolean field: injection failed. testObject2.Object.BooleanField = %v, expected %v", testObject2.object.BooleanField, false)
 	}
 }
+
+func TestInstanciateCompoundStructWithInitialValues(t *testing.T) {
+
+	type MemberStruct struct {
+		NonParametrizedField string
+		StringField          string `inject:"stringField" value:"teste"`
+		IntField             int    `inject:"intField" value:"12"`
+		BooleanField         bool   `inject:"booleanField" value:"true"`
+	}
+
+	intValue := 12
+	stringValue := "teste"
+	boolValue := true
+
+	type Container struct {
+		Id     int          `inject:"id" value:"100"`
+		Object MemberStruct `inject:"object"`
+	}
+
+	container, err := Instanciate[Container]()
+
+	if err != nil {
+		t.Fatalf("Error calling injectWithValueAndArgs: %v", err)
+	}
+
+	if container.Object.BooleanField != boolValue {
+		t.Fatalf("tested object boolean field: injection failed. container.Object.BooleanField = %v, expected %v", container.Object.BooleanField, boolValue)
+	}
+
+	if container.Object.IntField != intValue {
+		t.Fatalf("tested object boolean field: injection failed. container.Object.IntField = %v, expected %v", container.Object.IntField, intValue)
+	}
+
+	if container.Object.StringField != stringValue {
+		t.Fatalf("tested object boolean field: injection failed. container.Object.StringField = %v, expected %v", container.Object.StringField, stringValue)
+	}
+
+}
+
+func TestInstanciateCompoundStructWithPointer(t *testing.T) {
+
+	type MemberStruct struct {
+		NonParametrizedField string
+		StringField          string `inject:"stringField" value:"teste"`
+		IntField             int    `inject:"intField" value:"12"`
+		BooleanField         bool   `inject:"booleanField" value:"true"`
+	}
+
+	intValue := 12
+	stringValue := "teste"
+	boolValue := true
+
+	type Container struct {
+		Object *MemberStruct `inject:"object"`
+	}
+
+	container, err := Instanciate[Container]()
+
+	if err != nil {
+		t.Fatalf("Error calling injectWithValueAndArgs: %v", err)
+	}
+
+	if container.Object.BooleanField != boolValue {
+		t.Fatalf("tested object boolean field: injection failed. container.Object.BooleanField = %v, expected %v", container.Object.BooleanField, boolValue)
+	}
+
+	if container.Object.IntField != intValue {
+		t.Fatalf("tested object boolean field: injection failed. container.Object.IntField = %v, expected %v", container.Object.IntField, intValue)
+	}
+
+	if container.Object.StringField != stringValue {
+		t.Fatalf("tested object boolean field: injection failed. container.Object.StringField = %v, expected %v", container.Object.StringField, stringValue)
+	}
+
+}
